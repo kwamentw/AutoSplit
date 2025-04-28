@@ -3,6 +3,7 @@ pragma solidity 0.8.26;
 
 //import Token
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import{SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 //import ownable
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -10,12 +11,18 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IUniswapV2Router01} from "./IUniswapV2Router01.sol";
 
 contract AutoSplit is Ownable {
+
+    using SafeERC20 for IERC20;
+
     //TokenA
     IERC20 tokenA;
     //TokenB
     IERC20 tokenB;
     //Router
     IUniswapV2Router01 router;
+
+    event Deposited(address user, uint256 amountTknA, uint256 amountTknB);
+    event Withdrawn(address receipient, uint256 amounttkA, uint256 anounttkB);
 
     constructor(address _tokenA, address _tokenB, address _router) Ownable(msg.sender){
         tokenA = IERC20(_tokenA);
@@ -25,6 +32,19 @@ contract AutoSplit is Ownable {
 
     //deposit
     function deposit(uint256 amountA, uint256 amountB) external onlyOwner{
+        require(amountA != 0 || amountB != 0,"Stop fucking around there's nothing to deposit");
+        if(amountA != 0 && amountB != 0){
+            tokenA.safeTransferFrom(msg.sender, address(this), amountA);
+            tokenB.safeTransferFrom(msg.sender, address(this), amountB);
+        }else{
+            if(amountA == 0){
+                tokenB.safeTransferFrom(msg.sender, address(this), amountB);
+            }else if ( amountB == 0){
+                tokenA.safeTransferFrom(msg.sender, address(this), amountA);
+            }
+        }
+
+        emit Deposited( msg.sender, amountA, amountB);
 
     }
 
@@ -35,6 +55,21 @@ contract AutoSplit is Ownable {
     //swap
     function _swap() internal {}
     //withdraw
-    function withdraw() public onlyOwner {}
+    function withdraw(uint256 amountA, uint256 amountB) external onlyOwner {
+        require(amountA != 0 || amountB != 0,"Nothing to transfer");
+
+        if(amountA != 0){
+            if(amountB != 0){
+                tokenA.safeTransfer(msg.sender, amountA);
+                tokenB.safeTransfer(msg.sender, amountB);
+            }else if(amountB == 0){
+                tokenA.safeTransfer(msg.sender, amountA);
+            }
+        }else if(amountB != 0){
+            tokenB.safeTransfer(msg.sender, amountB);
+        }
+
+        emit Withdrawn(msg.sender, amountA, amountB);
+    }
 
 }
