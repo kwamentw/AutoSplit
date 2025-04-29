@@ -23,6 +23,9 @@ contract AutoSplit is Ownable {
 
     event Deposited(address user, uint256 amountTknA, uint256 amountTknB);
     event Withdrawn(address receipient, uint256 amounttkA, uint256 anounttkB);
+    event Swapped(address fromtkn, address totkn, uint256 amount);
+
+    error InsufficientAmount();
 
     constructor(address _tokenA, address _tokenB, address _router) Ownable(msg.sender){
         tokenA = IERC20(_tokenA);
@@ -52,8 +55,26 @@ contract AutoSplit is Ownable {
     function needRebalance() external returns(bool) {}
     //rebalance
     function rebalance() internal {}
+    
     //swap
-    function _swap() internal {}
+    function _swap(address fromtkn, address totkn, uint256 amount, uint256 amountMin) internal returns(uint256[] memory retAmt){
+        address[] memory path = new address[](2);
+        IERC20(fromtkn).approve(address(router), amount);
+
+        path[0] = fromtkn;
+        path[1] = totkn;
+        uint256 balBef = IERC20(totkn).balanceOf(address(this));
+
+        retAmt = IUniswapV2Router01(router).swapExactTokensForTokens(amount, amountMin, path, address(this), 0); //keeping dealine zero for now
+
+        uint256 balAfter = IERC20(totkn).balanceOf(address(this));
+
+        if(balAfter - balBef < amountMin || retAmt[1] != balAfter - balBef){
+            revert InsufficientAmount();
+        }
+
+        emit Swapped(fromtkn, totkn, amount);
+    }
     //withdraw
     function withdraw(uint256 amountA, uint256 amountB) external onlyOwner {
         require(amountA != 0 || amountB != 0,"Nothing to transfer");
