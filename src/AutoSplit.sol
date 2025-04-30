@@ -24,6 +24,7 @@ contract AutoSplit is Ownable {
     event Deposited(address user, uint256 amountTknA, uint256 amountTknB);
     event Withdrawn(address receipient, uint256 amounttkA, uint256 anounttkB);
     event Swapped(address fromtkn, address totkn, uint256 amount);
+    event Rebalanced( address tknA, address tknB);
 
     error InsufficientAmount();
 
@@ -54,8 +55,22 @@ contract AutoSplit is Ownable {
     // check rebalance from here if it needs rebalance then it is invoked from here 
     function needRebalance() external returns(bool) {}
     //rebalance
-    function rebalance() internal {}
-    
+    function rebalance() internal {
+        uint256 balA = tokenA.balanceOf(address(this));
+        uint256 balB = tokenB.balanceOf(address(this));
+         if(balA>balB){
+            uint256 diff = (balA - balB)/2;
+            require(diff != 0,"invalid amount");
+            _swap(address(tokenA), address(tokenB), diff,0);
+         }else if( balB > balA){
+            uint256 diff = (balB - balA)/2;
+            require(diff != 0, "invalid amount");
+            _swap(address(tokenB), address(tokenA), diff,0);
+         }
+
+         emit Rebalanced(address(tokenA), address(tokenB));
+    }
+     
     //swap
     function _swap(address fromtkn, address totkn, uint256 amount, uint256 amountMin) internal returns(uint256[] memory retAmt){
         address[] memory path = new address[](2);
