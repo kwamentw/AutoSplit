@@ -20,6 +20,8 @@ contract AutoSplit is Ownable {
     IERC20 tokenB;
     //Router
     IUniswapV2Router01 router;
+    uint256 constant TARGET_RATIO = 50; //50%
+    uint256 constant rebalanceThreshold = 5; //5% deviation of thhe target triggers rebalance
 
     event Deposited(address user, uint256 amountTknA, uint256 amountTknB);
     event Withdrawn(address receipient, uint256 amounttkA, uint256 anounttkB);
@@ -52,8 +54,23 @@ contract AutoSplit is Ownable {
 
     }
 
+
     // check rebalance from here if it needs rebalance then it is invoked from here 
-    function needRebalance() external returns(bool) {}
+    function needRebalance() external view returns(bool) {
+        uint256 balA = tokenA.balanceOf(address(this));
+        uint256 balB = tokenB.balanceOf(address(this));
+        uint256 totalBal = balA + balB;
+
+        uint256 currentRatio = totalBal == 0? 50 : balA * 100 / totalBal;
+
+        if(currentRatio >  TARGET_RATIO + rebalanceThreshold || currentRatio < TARGET_RATIO - rebalanceThreshold){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
     //rebalance
     function rebalance() internal {
         uint256 balA = tokenA.balanceOf(address(this));
