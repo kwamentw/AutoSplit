@@ -39,6 +39,7 @@ contract AutoSplit is Ownable {
     //deposit
     function deposit(uint256 amountA, uint256 amountB) external onlyOwner{
         require(amountA != 0 || amountB != 0,"Stop fucking around there's nothing to deposit");
+        
         if(amountA != 0 && amountB != 0){
             tokenA.safeTransferFrom(msg.sender, address(this), amountA);
             tokenB.safeTransferFrom(msg.sender, address(this), amountB);
