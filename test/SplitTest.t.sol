@@ -3,6 +3,7 @@ pragma solidity 0.8.26;
 
 import {AutoSplit} from "../src/AutoSplit.sol";
 import {Test} from "forge-std/Test.sol";
+import {console2} from "forge-std/console2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
@@ -17,6 +18,18 @@ contract SplitTest is Test{
         split = new AutoSplit(tokenA, tokenB, routerr);
     }
 
+    function depositOneSide() public {
+        deal(tokenB, address(this), 200e18);
+
+        IERC20(tokenB).approve(address(split), 200e18);
+
+        split.deposit(0,200e18);
+
+        uint256 splitBalTknB = IERC20(tokenB).balanceOf(address(split));
+
+        console2.log("tokenB bal of contract", splitBalTknB);
+    }
+
     function testDeposit() public{
 
         deal(tokenA, address(this), 10e18);
@@ -27,5 +40,42 @@ contract SplitTest is Test{
 
         // vm.prank(address(this));
         split.deposit(10e18,10e18);
+
+        uint256 splitBalTknA = IERC20(tokenA).balanceOf(address(split));
+        uint256 splitBalTknB = IERC20(tokenB).balanceOf(address(split));
+
+        assertEq(splitBalTknA, splitBalTknB);
+        assertEq(splitBalTknB, 10e18);
+
+        console2.log("tokenA bal of contract", splitBalTknA);
+        console2.log("tokenB bal of contract", splitBalTknB);
+    }
+
+    function testDepositOneSide() public{
+        deal(tokenB, address(this), 200e18);
+
+        IERC20(tokenB).approve(address(split), 200e18);
+
+        split.deposit(0,200e18);
+
+        uint256 splitBalTknB = IERC20(tokenB).balanceOf(address(split));
+
+        assertEq(splitBalTknB, 200e18);
+        console2.log("tokenB bal of contract", splitBalTknB);
+    }
+
+    function testNeedsRebalance() public{
+        // deposit equal amounts in both tokens
+        testDeposit();
+
+        bool state1 = split.needRebalance();
+
+        // deposit only one side of the pool
+        depositOneSide();
+
+        bool state2 = split.needRebalance();
+
+        assertFalse(state1);
+        assertTrue(state2);
     }
 }
