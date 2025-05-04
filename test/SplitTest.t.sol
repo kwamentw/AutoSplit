@@ -18,16 +18,16 @@ contract SplitTest is Test{
         split = new AutoSplit(tokenA, tokenB, routerr);
     }
 
-    function depositOneSide() public {
-        deal(tokenB, address(this), 200e18);
+    function depositOneSide(address token, uint256 amount) public {
+        deal(token, address(this), amount);
 
-        IERC20(tokenB).approve(address(split), 200e18);
+        IERC20(token).approve(address(split), amount);
 
-        split.deposit(0,200e18);
+        token == tokenB ? split.deposit(0,amount) : split.deposit(amount,0);
 
-        uint256 splitBalTknB = IERC20(tokenB).balanceOf(address(split));
+        uint256 splitBalTknB = IERC20(token).balanceOf(address(split));
 
-        console2.log("tokenB bal of contract", splitBalTknB);
+        console2.log("token bal of contract", splitBalTknB);
     }
 
     function testDeposit() public{
@@ -64,6 +64,37 @@ contract SplitTest is Test{
         console2.log("tokenB bal of contract", splitBalTknB);
     }
 
+    function testDepositOtherSide() public{
+        depositOneSide(tokenA, 100e18);
+
+        uint256 bal = IERC20(tokenA).balanceOf(address(split));
+        assertEq(bal, 100e18);
+    }
+
+    function testWithdraw() public{
+
+        depositOneSide(tokenA,100e18);
+        uint256 balBefA = IERC20(tokenA).balanceOf(address(split));
+        assertEq(balBefA, 100e18);
+
+        depositOneSide(tokenB, 100e18);
+        uint256 balBefB = IERC20(tokenB).balanceOf(address(split));
+        assertEq(balBefB, 100e18);
+
+        split.withdraw(100e18,100e18);
+        uint256 balAftA = IERC20(tokenA).balanceOf(address(split));
+        uint256 balAftB = IERC20(tokenB).balanceOf(address(split));
+
+        assertEq(balAftA, balAftB); // All balances should zero out
+        assertEq(balAftA, 0);
+
+        uint256 senderBalA = IERC20(tokenA).balanceOf(address(this));
+        uint256 senderBalB = IERC20(tokenB).balanceOf(address(this));
+        assertEq(senderBalA, senderBalB);
+        assertEq(senderBalA, 100e18);
+
+    }
+
     function testNeedsRebalance() public{
         // deposit equal amounts in both tokens
         testDeposit();
@@ -71,7 +102,7 @@ contract SplitTest is Test{
         bool state1 = split.needRebalance();
 
         // deposit only one side of the pool
-        depositOneSide();
+        depositOneSide(tokenB, 200e18);
 
         bool state2 = split.needRebalance();
 
