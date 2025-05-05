@@ -95,6 +95,19 @@ contract SplitTest is Test{
 
     }
 
+    function testWithdrawOneSide() public{
+        depositOneSide(tokenA, 100e18);
+        depositOneSide(tokenB, 100e18);
+
+        split.withdraw(0,100e18);
+
+        uint256 balA = IERC20(tokenA).balanceOf(address(this));
+        uint256 balB = IERC20(tokenB).balanceOf(address(this));
+
+        assertEq(balA, 0);
+        assertEq(balB, 100e18);
+    }
+
     function testNeedsRebalance() public{
         // deposit equal amounts in both tokens
         testDeposit();
