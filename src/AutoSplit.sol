@@ -10,6 +10,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 // import uniswap interface
 import {IUniswapV2Router01} from "./IUniswapV2Router01.sol";
 
+/**
+ * @title Auto Split
+ * @author 4b
+ * @notice This is production code but meant for understanding the concept of rebalancing.
+ */
 contract AutoSplit is Ownable {
 
     using SafeERC20 for IERC20;
@@ -124,6 +129,11 @@ contract AutoSplit is Ownable {
         }
 
         emit Withdrawn(msg.sender, amountA, amountB);
+    }
+
+    function getTotalBalances() public view returns(uint256 balA, uint256 balB){
+        balA = tokenA.balanceOf(address(this));
+        balB = tokenB.balanceOf(address(this));
     }
 
 }

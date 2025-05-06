@@ -106,6 +106,15 @@ contract SplitTest is Test{
 
         assertEq(balA, 0);
         assertEq(balB, 100e18);
+        
+        // checking the tokenA withdrawal
+
+        split.withdraw(100e18,0);
+
+        uint256 balA2 = IERC20(tokenA).balanceOf(address(this));
+
+        assertEq(balA2, 100e18);
+        assertGt(balA2, balA);
     }
 
     function testNeedsRebalance() public{
