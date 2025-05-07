@@ -78,15 +78,16 @@ contract AutoSplit is Ownable {
 
 
     //rebalance
-    function rebalance() internal {
+    //revisit the rebalance logic | the existing logic is not entirely correct
+    function rebalance() public {
         uint256 balA = tokenA.balanceOf(address(this));
         uint256 balB = tokenB.balanceOf(address(this));
          if(balA>balB){
-            uint256 diff = (balA - balB)/2;
+            uint256 diff = (balA - balB);
             require(diff != 0,"invalid amount");
             _swap(address(tokenA), address(tokenB), diff,0);
          }else if( balB > balA){
-            uint256 diff = (balB - balA)/2;
+            uint256 diff = (balB - balA);
             require(diff != 0, "invalid amount");
             _swap(address(tokenB), address(tokenA), diff,0);
          }
@@ -103,7 +104,7 @@ contract AutoSplit is Ownable {
         path[1] = totkn;
         uint256 balBef = IERC20(totkn).balanceOf(address(this));
 
-        retAmt = IUniswapV2Router01(router).swapExactTokensForTokens(amount, amountMin, path, address(this), 0); //keeping dealine zero for now
+        retAmt = IUniswapV2Router01(router).swapExactTokensForTokens(amount, amountMin, path, address(this), block.timestamp); //keeping dealine zero for now
 
         uint256 balAfter = IERC20(totkn).balanceOf(address(this));
 

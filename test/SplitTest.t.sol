@@ -131,4 +131,28 @@ contract SplitTest is Test{
         assertFalse(state1);
         assertTrue(state2);
     }
+
+    function testRebalance() public {
+        depositOneSide(tokenB, 2000e18);
+        depositOneSide(tokenA, 10e18);
+
+        bool needReba = split.needRebalance();
+
+        assertTrue(needReba);
+
+        split.rebalance();
+
+        needReba= split.needRebalance();
+
+        (uint256 balA, uint256 balB) = split.getTotalBalances();
+
+        console2.log("Bal of tokenA: ", balA);
+        console2.log("Bal of tokenB: ", balB);
+
+        assertFalse(needReba);
+
+        
+
+
+    }
 }
