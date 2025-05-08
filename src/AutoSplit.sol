@@ -9,6 +9,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // import uniswap interface
 import {IUniswapV2Router01} from "./IUniswapV2Router01.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title Auto Split
@@ -65,9 +66,18 @@ contract AutoSplit is Ownable {
     function needRebalance() external view returns(bool) {
         uint256 balA = tokenA.balanceOf(address(this));
         uint256 balB = tokenB.balanceOf(address(this));
-        uint256 totalBal = balA + balB;
+        // decimals of token A
+        uint256 decimalsA = ERC20(address(tokenA)).decimals();
+        // decimals of token B
+        uint256 decimalsB = ERC20(address(tokenB)).decimals();
+        uint256 decDiff = decimalsA > decimalsB ? decimalsA - decimalsB : decimalsB - decimalsA;
+        
+        // balA = decimalsA > decimalsB ? balA : balA*decDiff;
+        // balB = decimalsA > decimalsB ? balB*decDiff : balB;
 
-        uint256 currentRatio = totalBal == 0? 50 : balA * 100 / totalBal;
+        uint256 totalBal = decimalsA > decimalsB ? (balA + balB*decDiff) : (balA*decDiff + balB);
+
+        uint256 currentRatio = totalBal == 0 ? 50 : balA * 100 / totalBal; //find a way to normalise the decimals of balA here too
 
         if(currentRatio >  TARGET_RATIO + rebalanceThreshold || currentRatio < TARGET_RATIO - rebalanceThreshold){
             return true;
@@ -78,18 +88,29 @@ contract AutoSplit is Ownable {
 
 
     //rebalance
-    //revisit the rebalance logic | the existing logic is not entirely correct
-    function rebalance() public {
+    //revisit the rebalance logic | the existing logic is not entirely correct | decimals checked left with the main logic 
+    function rebalance() public returns (uint256[] memory retAmt){
         uint256 balA = tokenA.balanceOf(address(this));
         uint256 balB = tokenB.balanceOf(address(this));
+
+        // decimals of token A
+        uint256 decimalsA = ERC20(address(tokenA)).decimals();
+        // decimals of token B
+        uint256 decimalsB = ERC20(address(tokenB)).decimals();
+
+        uint256 decDiff = decimalsA > decimalsB ? decimalsA - decimalsB : decimalsB - decimalsA;
+
          if(balA>balB){
-            uint256 diff = (balA - balB);
+
+            uint256 diff = decimalsA > decimalsB ? (balA - balB*decDiff) : (balA*decDiff - balB);
             require(diff != 0,"invalid amount");
-            _swap(address(tokenA), address(tokenB), diff,0);
+            retAmt =_swap(address(tokenA), address(tokenB), diff,0);
+
          }else if( balB > balA){
-            uint256 diff = (balB - balA);
+
+            uint256 diff = decimalsB > decimalsA ? (balB - balA*decDiff) : (balB*decDiff - balA);
             require(diff != 0, "invalid amount");
-            _swap(address(tokenB), address(tokenA), diff,0);
+            retAmt =_swap(address(tokenB), address(tokenA), diff,0);
          }
 
          emit Rebalanced(address(tokenA), address(tokenB));
