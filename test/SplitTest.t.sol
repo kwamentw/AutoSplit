@@ -8,7 +8,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 contract SplitTest is Test{
-    address tokenA = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; //usdc
+    address tokenA = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;//usdt //usdc -0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
     address tokenB = 0x6B175474E89094C44Da98b954EedeAC495271d0F; //Dai
     address routerr = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
@@ -120,7 +120,7 @@ contract SplitTest is Test{
     function testNeedsRebalance() public{
         // deposit equal amounts in both tokens
         depositOneSide(tokenB, 20e18);
-        depositOneSide(tokenA, 20e6);
+        depositOneSide(tokenA, 20e18);
 
         bool state1 = split.needRebalance();
 

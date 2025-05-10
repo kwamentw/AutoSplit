@@ -159,3 +159,10 @@ contract AutoSplit is Ownable {
     }
 
 }
+
+/**
+ * Find the real value by multiplying the price
+ * check the weights and rebalance
+ * take into consideration decimals too
+ * look at previous rebalance logics
+ */
