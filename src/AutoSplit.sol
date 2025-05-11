@@ -43,6 +43,11 @@ contract AutoSplit is Ownable {
     }
 
     //deposit
+    /**
+     * Deposits tokens into pool
+     * @param amountA amount of token A
+     * @param amountB amount of token B
+     */
     function deposit(uint256 amountA, uint256 amountB) external onlyOwner{
         require(amountA != 0 || amountB != 0,"Stop fucking around there's nothing to deposit");
         
@@ -88,7 +93,10 @@ contract AutoSplit is Ownable {
 
 
     //rebalance
-    //revisit the rebalance logic | the existing logic is not entirely correct | decimals checked left with the main logic 
+    //revisit the rebalance logic | the existing logic is not entirely correct | decimals checked left with the main logic
+    /**
+     * Rebalances the tokens in the pool
+     */ 
     function rebalance() public returns (uint256[] memory retAmt){
         uint256 balA = tokenA.balanceOf(address(this));
         uint256 balB = tokenB.balanceOf(address(this));
@@ -117,6 +125,13 @@ contract AutoSplit is Ownable {
     }
      
     //swap
+    /**
+     * Swaps from one token to another
+     * @param fromtkn input token
+     * @param totkn output token
+     * @param amount amount to swap
+     * @param amountMin minimum amount desired
+     */
     function _swap(address fromtkn, address totkn, uint256 amount, uint256 amountMin) internal returns(uint256[] memory retAmt){
         address[] memory path = new address[](2);
         IERC20(fromtkn).approve(address(router), amount);
@@ -153,6 +168,11 @@ contract AutoSplit is Ownable {
         emit Withdrawn(msg.sender, amountA, amountB);
     }
 
+    /**
+     * Returns total balance of both tokens 
+     * @return balA balance of token A
+     * @return balB balance of token B
+     */
     function getTotalBalances() public view returns(uint256 balA, uint256 balB){
         balA = tokenA.balanceOf(address(this));
         balB = tokenB.balanceOf(address(this));
