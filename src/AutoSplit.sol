@@ -29,12 +29,16 @@ contract AutoSplit is Ownable {
     uint256 constant TARGET_RATIO = 50; //50%
     uint256 constant rebalanceThreshold = 5; //5% deviation of thhe target triggers rebalance
 
+    // emits when tokens are deposited
     event Deposited(address user, uint256 amountTknA, uint256 amountTknB);
+    // emits when tokens are  withdrawn
     event Withdrawn(address receipient, uint256 amounttkA, uint256 anounttkB);
+    // emits when tokens are swapped
     event Swapped(address fromtkn, address totkn, uint256 amount);
+    // emits when tokens are rebalanced
     event Rebalanced( address tknA, address tknB);
 
-    error InsufficientAmount();
+    error InsufficientAmount(); //reverts when amount is insufficient
 
     constructor(address _tokenA, address _tokenB, address _router) Ownable(msg.sender){
         tokenA = IERC20(_tokenA);
@@ -151,6 +155,11 @@ contract AutoSplit is Ownable {
         emit Swapped(fromtkn, totkn, amount);
     }
     //withdraw
+    /**
+     * Withdraws a specific amount of token A or/and B 
+     * @param amountA amount of token A
+     * @param amountB amount of token B
+     */
     function withdraw(uint256 amountA, uint256 amountB) external onlyOwner {
         require(amountA != 0 || amountB != 0,"Nothing to transfer");
 
