@@ -7,6 +7,11 @@ import {console2} from "forge-std/console2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
+/**
+ * @title Auto Split Test
+ * @author 4b
+ * @notice  A test script for AutoSplit
+ */
 contract SplitTest is Test{
     address tokenA = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;//usdt //usdc -0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
     address tokenB = 0x6B175474E89094C44Da98b954EedeAC495271d0F; //Dai
@@ -153,9 +158,5 @@ contract SplitTest is Test{
         console2.log("Bal of tokenB: ", balB);
 
         assertFalse(needReba);
-
-        
-
-
     }
 }

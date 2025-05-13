@@ -195,3 +195,21 @@ contract AutoSplit is Ownable {
  * take into consideration decimals too
  * look at previous rebalance logics
  */
+
+// new rebalance logic
+// function rebalance() external {
+//         uint256 balanceA = tokenA.balanceOf(pool);
+//         uint256 balanceB = tokenB.balanceOf(pool);
+//         uint256 totalBalance = balanceA + balanceB;
+
+//         uint256 desiredBalanceA = (totalBalance * targetRatioA) / 100;
+//         uint256 desiredBalanceB = (totalBalance * targetRatioB) / 100;
+
+//         if (balanceA > desiredBalanceA) {
+//             uint256 excessA = balanceA - desiredBalanceA;
+//             _swapTokenAForTokenB(excessA);
+//         } else if (balanceB > desiredBalanceB) {
+//             uint256 excessB = balanceB - desiredBalanceB;
+//             _swapTokenBForTokenA(excessB);
+//         }
+//     }
