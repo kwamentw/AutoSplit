@@ -102,28 +102,43 @@ contract AutoSplit is Ownable {
      * Rebalances the tokens in the pool
      */ 
     function rebalance() public returns (uint256[] memory retAmt){
-        uint256 balA = tokenA.balanceOf(address(this));
-        uint256 balB = tokenB.balanceOf(address(this));
+        // uint256 balA = tokenA.balanceOf(address(this));
+        // uint256 balB = tokenB.balanceOf(address(this));
 
-        // decimals of token A
-        uint256 decimalsA = ERC20(address(tokenA)).decimals();
-        // decimals of token B
-        uint256 decimalsB = ERC20(address(tokenB)).decimals();
+        // // decimals of token A
+        // uint256 decimalsA = ERC20(address(tokenA)).decimals();
+        // // decimals of token B
+        // uint256 decimalsB = ERC20(address(tokenB)).decimals();
 
-        uint256 decDiff = decimalsA > decimalsB ? decimalsA - decimalsB : decimalsB - decimalsA;
+        // uint256 decDiff = decimalsA > decimalsB ? decimalsA - decimalsB : decimalsB - decimalsA;
 
-         if(balA>balB){
+        //  if(balA>balB){
 
-            uint256 diff = decimalsA > decimalsB ? (balA - balB*decDiff) : (balA*decDiff - balB);
-            require(diff != 0,"invalid amount");
-            retAmt =_swap(address(tokenA), address(tokenB), diff,0);
+        //     uint256 diff = decimalsA > decimalsB ? (balA - balB*decDiff) : (balA*decDiff - balB);
+        //     require(diff != 0,"invalid amount");
+        //     retAmt =_swap(address(tokenA), address(tokenB), diff,0);
 
-         }else if( balB > balA){
+        //  }else if( balB > balA){
 
-            uint256 diff = decimalsB > decimalsA ? (balB - balA*decDiff) : (balB*decDiff - balA);
-            require(diff != 0, "invalid amount");
-            retAmt =_swap(address(tokenB), address(tokenA), diff,0);
-         }
+        //     uint256 diff = decimalsB > decimalsA ? (balB - balA*decDiff) : (balB*decDiff - balA);
+        //     require(diff != 0, "invalid amount");
+        //     retAmt =_swap(address(tokenB), address(tokenA), diff,0);
+        //  }
+
+        uint256 balanceA = tokenA.balanceOf(address(this));
+        uint256 balanceB = tokenB.balanceOf(address(this));
+        uint256 totalBalance = balanceA + balanceB;
+
+        uint256 desiredBalanceA = (totalBalance * TARGET_RATIO) / 100;
+        uint256 desiredBalanceB = (totalBalance * TARGET_RATIO) / 100;
+
+        if (balanceA > desiredBalanceA) {
+            uint256 excessA = balanceA - desiredBalanceA;
+            // _swapTokenAForTokenB(excessA);
+        } else if (balanceB > desiredBalanceB) {
+            uint256 excessB = balanceB - desiredBalanceB;
+            // _swapTokenBForTokenA(excessB);
+        }
 
          emit Rebalanced(address(tokenA), address(tokenB));
     }
