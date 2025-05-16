@@ -10,6 +10,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 // import uniswap interface
 import {IUniswapV2Router01} from "./IUniswapV2Router01.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+//for test purposes
+import {console} from "forge-std/console.sol";
 
 /**
  * @title Auto Split
@@ -26,8 +28,8 @@ contract AutoSplit is Ownable {
     IERC20 tokenB;
     //Router
     IUniswapV2Router01 router;
-    uint256 constant TARGET_RATIO = 50; //50%
-    uint256 constant rebalanceThreshold = 5; //5% deviation of thhe target triggers rebalance
+    uint256 constant TARGET_RATIO = 5e3; //50%
+    uint256 constant rebalanceThreshold = 500; //5% deviation of thhe target triggers rebalance
 
     // emits when tokens are deposited
     event Deposited(address user, uint256 amountTknA, uint256 amountTknB);
@@ -75,18 +77,15 @@ contract AutoSplit is Ownable {
     function needRebalance() external view returns(bool) {
         uint256 balA = tokenA.balanceOf(address(this));
         uint256 balB = tokenB.balanceOf(address(this));
-        // decimals of token A
-        uint256 decimalsA = ERC20(address(tokenA)).decimals();
-        // decimals of token B
-        uint256 decimalsB = ERC20(address(tokenB)).decimals();
-        uint256 decDiff = decimalsA > decimalsB ? decimalsA - decimalsB : decimalsB - decimalsA;
-        
-        // balA = decimalsA > decimalsB ? balA : balA*decDiff;
-        // balB = decimalsA > decimalsB ? balB*decDiff : balB;
 
-        uint256 totalBal = decimalsA > decimalsB ? (balA + balB*decDiff) : (balA*decDiff + balB);
+        console.log("balance of A: ", balA);
+        console.log("balance of B: ", balB);
 
-        uint256 currentRatio = totalBal == 0 ? 50 : balA * 100 / totalBal; //find a way to normalise the decimals of balA here too
+        uint256 totalBal =(balA + balB);
+        console.log("Total balance: ", totalBal);
+
+        uint256 currentRatio = totalBal == 0 ? 5e3 : balA * 1e4 / totalBal; //find a way to normalise the decimals of balA here too
+        console.log("current ratio: ", currentRatio);
 
         if(currentRatio >  TARGET_RATIO + rebalanceThreshold || currentRatio < TARGET_RATIO - rebalanceThreshold){
             return true;
@@ -103,19 +102,23 @@ contract AutoSplit is Ownable {
      */ 
     function rebalance() public returns (uint256[] memory retAmt){
 
-        uint256 balanceA = tokenA.balanceOf(address(this));
+        uint256 balanceA = tokenA.balanceOf(address(this)) ;
         uint256 balanceB = tokenB.balanceOf(address(this));
         uint256 totalBalance = balanceA + balanceB;
 
-        uint256 desiredBalanceA = (totalBalance * TARGET_RATIO) / 100;
-        uint256 desiredBalanceB = (totalBalance * TARGET_RATIO) / 100;
+
+        uint256 desiredBalanceA = (totalBalance * TARGET_RATIO ) / 1e4;
+        uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
+        console.log("dbal: ",desiredBalanceA);
 
         if (balanceA > desiredBalanceA) {
             uint256 excessA = balanceA - desiredBalanceA;
             // _swapTokenAForTokenB(excessA);
+            retAmt = _swap(address(tokenA), address(tokenB), excessA, 0);
         } else if (balanceB > desiredBalanceB) {
             uint256 excessB = balanceB - desiredBalanceB;
             // _swapTokenBForTokenA(excessB);
+           retAmt = _swap(address(tokenB), address(tokenA), excessB, 0);
         }
 
          emit Rebalanced(address(tokenA), address(tokenB));

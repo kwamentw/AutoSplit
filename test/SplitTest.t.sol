@@ -24,9 +24,9 @@ contract SplitTest is Test{
     }
 
     function depositOneSide(address token, uint256 amount) public {
-        deal(token, address(this), amount);
+        deal(token, address(this), amount + 10000e18);
 
-        IERC20(token).approve(address(split), amount);
+        IERC20(token).approve(address(split), type(uint128).max);
 
         token == tokenB ? split.deposit(0,amount) : split.deposit(amount,0);
 
@@ -134,15 +134,16 @@ contract SplitTest is Test{
 
         bool state2 = split.needRebalance();
 
-        // assertFalse(state1);
-        // assertTrue(state2);
+        assertFalse(state1);
+        assertTrue(state2);
+
         console2.log(state1);
         console2.log(state2);
     }
 
     function testRebalance() public {
         depositOneSide(tokenB, 2000e18);
-        depositOneSide(tokenA, 10e18);
+        depositOneSide(tokenA, 100e6);
 
         bool needReba = split.needRebalance();
 
