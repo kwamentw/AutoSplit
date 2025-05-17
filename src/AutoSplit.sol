@@ -42,6 +42,12 @@ contract AutoSplit is Ownable {
 
     error InsufficientAmount(); //reverts when amount is insufficient
 
+    /**
+     * temo variables to be initialized to main variables 
+     * @param _tokenA token A address
+     * @param _tokenB token B address
+     * @param _router router address
+     */
     constructor(address _tokenA, address _tokenB, address _router) Ownable(msg.sender){
         tokenA = IERC20(_tokenA);
         tokenB = IERC20(_tokenB);
