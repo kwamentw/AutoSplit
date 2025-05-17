@@ -35,6 +35,8 @@ contract SplitTest is Test{
         console2.log("token bal of contract", splitBalTknB);
     }
 
+    ///////////////////// DEPOSIT TEST //////////////////////////
+
     function testDeposit() public{
 
         deal(tokenA, address(this), 10e18);
@@ -75,6 +77,8 @@ contract SplitTest is Test{
         uint256 bal = IERC20(tokenA).balanceOf(address(split));
         assertEq(bal, 100e18);
     }
+
+    ///////////////////////////// WITHDRAW TEST ///////////////////////////////
 
     function testWithdraw() public{
 
@@ -121,6 +125,8 @@ contract SplitTest is Test{
         assertEq(balA2, 100e18);
         assertGt(balA2, balA);
     }
+
+    //////////////////////////////////// REBALANCE TEST ////////////////////////////
 
     function testNeedsRebalance() public{
         // deposit equal amounts in both tokens
