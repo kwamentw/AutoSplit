@@ -150,7 +150,7 @@ contract SplitTest is Test{
     }
 
     function testRebalance() public {
-        depositOneSide(tokenB, 2000e18);
+        depositOneSide(tokenB, 50e18);
         depositOneSide(tokenA, 100e6);
 
         bool needReba = split.needRebalance();

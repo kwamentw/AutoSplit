@@ -81,8 +81,8 @@ contract AutoSplit is Ownable {
 
     // check rebalance from here if it needs rebalance then it is invoked from here 
     function needRebalance() external view returns(bool) {
-        uint256 balA = tokenA.balanceOf(address(this));
-        uint256 balB = tokenB.balanceOf(address(this));
+        uint256 balA = tokenA.balanceOf(address(this))/1e6;
+        uint256 balB = tokenB.balanceOf(address(this))/1e18;
 
         console.log("balance of A: ", balA);
         console.log("balance of B: ", balB);
@@ -107,9 +107,13 @@ contract AutoSplit is Ownable {
      * Rebalances the tokens in the pool
      */ 
     function rebalance() public returns (uint256[] memory retAmt){
+        /**
+         * Rebalance if tkA > tkB or tkA < tkB
+         * Rebalance if tkB < tknA or tkb > tkA 
+         */
 
-        uint256 balanceA = tokenA.balanceOf(address(this)) ;
-        uint256 balanceB = tokenB.balanceOf(address(this));
+        uint256 balanceA = tokenA.balanceOf(address(this))/1e6 ;
+        uint256 balanceB = tokenB.balanceOf(address(this)) /1e12;
         uint256 totalBalance = balanceA + balanceB;
 
 
@@ -117,14 +121,14 @@ contract AutoSplit is Ownable {
         uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
         console.log("dbal: ",desiredBalanceA);
 
-        if (balanceA > desiredBalanceA) {
-            uint256 excessA = balanceA - desiredBalanceA;
-            // _swapTokenAForTokenB(excessA);
-            retAmt = _swap(address(tokenA), address(tokenB), excessA, 0);
-        } else if (balanceB > desiredBalanceB) {
-            uint256 excessB = balanceB - desiredBalanceB;
-            // _swapTokenBForTokenA(excessB);
-           retAmt = _swap(address(tokenB), address(tokenA), excessB, 0);
+        if (balanceA < balanceB) {
+            uint256 excessA = balanceB - balanceA;
+            // swap(usdc, dai, excessUsdc);
+            retAmt = _swap(address(tokenB), address(tokenA), (excessA*1e12)/2, 0);
+        }else if (balanceB < balanceA) {
+            uint256 excessB = balanceA - balanceB;
+            // swap(dai, usdc, excessDai);
+            retAmt = _swap(address(tokenA), address(tokenB), (excessB*1e6)/2, 0);
         }
 
          emit Rebalanced(address(tokenA), address(tokenB));
