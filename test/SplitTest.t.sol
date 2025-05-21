@@ -5,6 +5,8 @@ import {AutoSplit} from "../src/AutoSplit.sol";
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {TokenA} from "./mockTokenA.sol";
+import {TokenB} from "./mockTokenB.sol";
 
 
 /**
@@ -13,6 +15,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @notice  A test script for AutoSplit
  */
 contract SplitTest is Test{
+    //try with mock tokens and see
+    
     address tokenA = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;//usdt //usdc -0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
     address tokenB = 0x6B175474E89094C44Da98b954EedeAC495271d0F; //Dai
     address routerr = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
