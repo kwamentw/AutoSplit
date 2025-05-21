@@ -118,7 +118,7 @@ contract AutoSplit is Ownable {
 
 
         uint256 desiredBalanceA = (totalBalance * TARGET_RATIO ) / 1e4;
-        uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
+        // uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
         console.log("dbal: ",desiredBalanceA);
 
         if (balanceA < balanceB) {
