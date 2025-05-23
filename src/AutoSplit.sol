@@ -54,7 +54,6 @@ contract AutoSplit is Ownable {
         router = IUniswapV2Router01(_router);
     }
 
-    //deposit
     /**
      * Deposits tokens into pool
      * @param amountA amount of token A
@@ -77,9 +76,10 @@ contract AutoSplit is Ownable {
         emit Deposited( msg.sender, amountA, amountB);
 
     }
-
-
-    // check rebalance from here if it needs rebalance then it is invoked from here 
+    
+    /**
+     * Checks whether protocol needs rebalancing
+     */
     function needRebalance() external view returns(bool) {
         uint256 balA = tokenA.balanceOf(address(this))/1e6;
         uint256 balB = tokenB.balanceOf(address(this))/1e18;
@@ -100,9 +100,6 @@ contract AutoSplit is Ownable {
         }
     }
 
-
-    //rebalance
-    //revisit the rebalance logic | the existing logic is not entirely correct | decimals checked left with the main logic
     /**
      * Rebalances the tokens in the pool
      */ 
@@ -130,7 +127,7 @@ contract AutoSplit is Ownable {
          emit Rebalanced(address(tokenA), address(tokenB));
     }
      
-    //swap
+
     /**
      * Swaps from one token to another
      * @param fromtkn input token
@@ -156,7 +153,7 @@ contract AutoSplit is Ownable {
 
         emit Swapped(fromtkn, totkn, amount);
     }
-    //withdraw
+
     /**
      * Withdraws a specific amount of token A or/and B 
      * @param amountA amount of token A
@@ -190,51 +187,3 @@ contract AutoSplit is Ownable {
     }
 
 }
-
-/**
- * Find the real value by multiplying the price
- * check the weights and rebalance
- * take into consideration decimals too
- * look at previous rebalance logics
- */
-
-// new rebalance logic
-// function rebalance() external {
-//         uint256 balanceA = tokenA.balanceOf(pool);
-//         uint256 balanceB = tokenB.balanceOf(pool);
-//         uint256 totalBalance = balanceA + balanceB;
-
-//         uint256 desiredBalanceA = (totalBalance * targetRatioA) / 100;
-//         uint256 desiredBalanceB = (totalBalance * targetRatioB) / 100;
-
-//         if (balanceA > desiredBalanceA) {
-//             uint256 excessA = balanceA - desiredBalanceA;
-//             _swapTokenAForTokenB(excessA);
-//         } else if (balanceB > desiredBalanceB) {
-//             uint256 excessB = balanceB - desiredBalanceB;
-//             _swapTokenBForTokenA(excessB);
-//         }
-//     }
-
-        // uint256 balA = tokenA.balanceOf(address(this));
-        // uint256 balB = tokenB.balanceOf(address(this));
-
-        // // decimals of token A
-        // uint256 decimalsA = ERC20(address(tokenA)).decimals();
-        // // decimals of token B
-        // uint256 decimalsB = ERC20(address(tokenB)).decimals();
-
-        // uint256 decDiff = decimalsA > decimalsB ? decimalsA - decimalsB : decimalsB - decimalsA;
-
-        //  if(balA>balB){
-
-        //     uint256 diff = decimalsA > decimalsB ? (balA - balB*decDiff) : (balA*decDiff - balB);
-        //     require(diff != 0,"invalid amount");
-        //     retAmt =_swap(address(tokenA), address(tokenB), diff,0);
-
-        //  }else if( balB > balA){
-
-        //     uint256 diff = decimalsB > decimalsA ? (balB - balA*decDiff) : (balB*decDiff - balA);
-        //     require(diff != 0, "invalid amount");
-        //     retAmt =_swap(address(tokenB), address(tokenA), diff,0);
-        //  }
