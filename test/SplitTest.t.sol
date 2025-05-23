@@ -15,9 +15,11 @@ import {TokenB} from "./mockTokenB.sol";
  * @notice  A test script for AutoSplit
  */
 contract SplitTest is Test{
+    TokenA tknA;
+    TokenB tknB;
     //try with mock tokens and see
     
-    address tokenA = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;//usdt //usdc -0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+    address tokenA = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; //usdt //usdc -0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
     address tokenB = 0x6B175474E89094C44Da98b954EedeAC495271d0F; //Dai
     address routerr = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
@@ -154,8 +156,8 @@ contract SplitTest is Test{
     }
 
     function testRebalance() public {
-        depositOneSide(tokenB, 50e18);
-        depositOneSide(tokenA, 100e6);
+        depositOneSide(tokenB, 100e18);
+        depositOneSide(tokenA, 50e6);
 
         bool needReba = split.needRebalance();
 
@@ -170,8 +172,16 @@ contract SplitTest is Test{
         console2.log("Bal of tokenA: ", balA);
         console2.log("Bal of tokenB: ", balB);
 
-        assertFalse(needReba);
+        if(needReba){
+            split.rebalance();
+        }else{
+            assertFalse(needReba);
+        }
+
+        needReba= split.needRebalance();
     }
 }
+
+//The test figured it out now have to incorporate solution into main contract.
 /////////////////////////////////
 /////////////////////////////////

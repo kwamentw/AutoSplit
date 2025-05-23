@@ -107,28 +107,24 @@ contract AutoSplit is Ownable {
      * Rebalances the tokens in the pool
      */ 
     function rebalance() public returns (uint256[] memory retAmt){
-        /**
-         * Rebalance if tkA > tkB or tkA < tkB
-         * Rebalance if tkB < tknA or tkb > tkA 
-         */
 
-        uint256 balanceA = tokenA.balanceOf(address(this))/1e6 ;
-        uint256 balanceB = tokenB.balanceOf(address(this)) /1e12;
+        uint256 balanceA = tokenA.balanceOf(address(this));
+        uint256 balanceB = tokenB.balanceOf(address(this));
         uint256 totalBalance = balanceA + balanceB;
 
 
         uint256 desiredBalanceA = (totalBalance * TARGET_RATIO ) / 1e4;
-        // uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
+        uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
         console.log("dbal: ",desiredBalanceA);
 
-        if (balanceA < balanceB) {
-            uint256 excessA = balanceB - balanceA;
+        if (balanceA > desiredBalanceA) {
+            uint256 excessA = balanceA - desiredBalanceA;
             // swap(usdc, dai, excessUsdc);
-            retAmt = _swap(address(tokenB), address(tokenA), (excessA*1e12)/2, 0);
-        }else if (balanceB < balanceA) {
-            uint256 excessB = balanceA - balanceB;
+            retAmt = _swap(address(tokenA), address(tokenB), (excessA)/2, 0);
+        }else if (balanceB > desiredBalanceB) {
+            uint256 excessB = balanceB - desiredBalanceB;
             // swap(dai, usdc, excessDai);
-            retAmt = _swap(address(tokenA), address(tokenB), (excessB*1e6)/2, 0);
+            retAmt = _swap(address(tokenB), address(tokenA), (excessB)/2, 0);
         }
 
          emit Rebalanced(address(tokenA), address(tokenB));
