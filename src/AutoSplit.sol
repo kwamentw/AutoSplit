@@ -28,6 +28,7 @@ contract AutoSplit is Ownable {
     IERC20 tokenB;
     //Router
     IUniswapV2Router01 router;
+    
     uint256 constant TARGET_RATIO = 5e3; //50%
     uint256 constant rebalanceThreshold = 500; //5% deviation of thhe target triggers rebalance
 
@@ -40,7 +41,8 @@ contract AutoSplit is Ownable {
     // emits when tokens are rebalanced
     event Rebalanced( address tknA, address tknB);
 
-    error InsufficientAmount(); //reverts when amount is insufficient
+    //reverts when amount is insufficient
+    error InsufficientAmount(); 
 
     /**
      * temo variables to be initialized to main variables 
@@ -103,7 +105,7 @@ contract AutoSplit is Ownable {
     /**
      * Rebalances the tokens in the pool
      */ 
-    function rebalance() public returns (uint256[] memory retAmt){
+    function _rebalance() internal returns (uint256[] memory retAmt){
 
         uint256 balanceA = tokenA.balanceOf(address(this));
         uint256 balanceB = tokenB.balanceOf(address(this));
@@ -125,6 +127,17 @@ contract AutoSplit is Ownable {
         }
 
          emit Rebalanced(address(tokenA), address(tokenB));
+    }
+
+    function rebalance() public returns (bool){
+        /**
+         * call rebalance
+         * after check whether protocol still needs rebalancing
+         * if it does rebalnce again
+         * then rebalance
+         * then return bool if it doesnt need rebalance again
+         */
+
     }
      
 
