@@ -82,18 +82,15 @@ contract AutoSplit is Ownable {
     /**
      * Checks whether protocol needs rebalancing
      */
-    function needRebalance() external view returns(bool) {
+    function needRebalance() public view returns(bool) {
         uint256 balA = tokenA.balanceOf(address(this))/1e6;
         uint256 balB = tokenB.balanceOf(address(this))/1e18;
 
-        console.log("balance of A: ", balA);
-        console.log("balance of B: ", balB);
-
         uint256 totalBal =(balA + balB);
-        console.log("Total balance: ", totalBal);
+
 
         uint256 currentRatio = totalBal == 0 ? 5e3 : balA * 1e4 / totalBal; //find a way to normalise the decimals of balA here too
-        console.log("current ratio: ", currentRatio);
+
 
         if(currentRatio >  TARGET_RATIO + rebalanceThreshold || currentRatio < TARGET_RATIO - rebalanceThreshold){
             return true;
@@ -111,10 +108,8 @@ contract AutoSplit is Ownable {
         uint256 balanceB = tokenB.balanceOf(address(this));
         uint256 totalBalance = balanceA + balanceB;
 
-
         uint256 desiredBalanceA = (totalBalance * TARGET_RATIO ) / 1e4;
         uint256 desiredBalanceB = (totalBalance * TARGET_RATIO ) / 1e4;
-        console.log("dbal: ",desiredBalanceA);
 
         if (balanceA > desiredBalanceA) {
             uint256 excessA = balanceA - desiredBalanceA;
@@ -134,14 +129,18 @@ contract AutoSplit is Ownable {
      * calls _rebalance
      */
     function rebalance() public returns (bool){
-        /**
-         * call rebalance
-         * after check whether protocol still needs rebalancing
-         * if it does rebalnce again
-         * then rebalance
-         * then return bool if it doesnt need rebalance again
-         */
-        //////////////////////////////
+
+        bool befRebalance = needRebalance();
+
+        if(befRebalance){
+            _rebalance();
+        }else{
+            return false;
+        }
+
+        bool aftRebalance = needRebalance();
+
+        return aftRebalance;
 
     }
      
