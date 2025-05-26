@@ -28,7 +28,7 @@ contract AutoSplit is Ownable {
     IERC20 tokenB;
     //Router
     IUniswapV2Router01 router;
-    
+
     uint256 constant TARGET_RATIO = 5e3; //50%
     uint256 constant rebalanceThreshold = 500; //5% deviation of thhe target triggers rebalance
 
@@ -129,6 +129,10 @@ contract AutoSplit is Ownable {
          emit Rebalanced(address(tokenA), address(tokenB));
     }
 
+    /**
+     * Rebalaces protocol to maintain the pool's collateralisation ratio
+     * calls _rebalance
+     */
     function rebalance() public returns (bool){
         /**
          * call rebalance
@@ -137,6 +141,7 @@ contract AutoSplit is Ownable {
          * then rebalance
          * then return bool if it doesnt need rebalance again
          */
+        //////////////////////////////
 
     }
      
