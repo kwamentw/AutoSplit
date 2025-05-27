@@ -9,6 +9,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // import uniswap interface
 import {IUniswapV2Router01} from "./IUniswapV2Router01.sol";
+
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 //for test purposes
 import {console} from "forge-std/console.sol";
@@ -81,6 +82,7 @@ contract AutoSplit is Ownable {
     
     /**
      * Checks whether protocol needs rebalancing
+     * returns bool to indicate rebalance state
      */
     function needRebalance() public view returns(bool) {
         uint256 balA = tokenA.balanceOf(address(this))/1e6;
@@ -88,9 +90,7 @@ contract AutoSplit is Ownable {
 
         uint256 totalBal =(balA + balB);
 
-
         uint256 currentRatio = totalBal == 0 ? 5e3 : balA * 1e4 / totalBal; //find a way to normalise the decimals of balA here too
-
 
         if(currentRatio >  TARGET_RATIO + rebalanceThreshold || currentRatio < TARGET_RATIO - rebalanceThreshold){
             return true;
@@ -113,11 +113,10 @@ contract AutoSplit is Ownable {
 
         if (balanceA > desiredBalanceA) {
             uint256 excessA = balanceA - desiredBalanceA;
-            // swap(usdc, dai, excessUsdc);
             retAmt = _swap(address(tokenA), address(tokenB), (excessA)/2, 0);
+
         }else if (balanceB > desiredBalanceB) {
             uint256 excessB = balanceB - desiredBalanceB;
-            // swap(dai, usdc, excessDai);
             retAmt = _swap(address(tokenB), address(tokenA), (excessB)/2, 0);
         }
 
@@ -127,6 +126,7 @@ contract AutoSplit is Ownable {
     /**
      * Rebalaces protocol to maintain the pool's collateralisation ratio
      * calls _rebalance
+     * returns bool to inidicate whether pool has been rebalanced
      */
     function rebalance() public returns (bool){
 
