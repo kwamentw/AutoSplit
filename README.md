@@ -46,8 +46,3 @@ To learn and explore how rebalancing works in decentralized protocols.
 $ forge test
 ```
 
-### Help
-
-```shell
-$ forge --help
-```
